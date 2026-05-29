@@ -16,17 +16,6 @@ export const authController = {
     try {
       const { email, password } = req.body;
 
-      // 2. 基本防呆把關
-      if (!email || !password) {
-        console.warn('⚠️ [防呆攔截] 前端傳入資料不完整，拒絕於門口。');
-        return res.status(400).json({
-          status: 'error',
-          message: '請輸入完整的帳號與密碼。'
-        });
-      }
-
-      console.log('🧠 [轉交] 資料規格正確，正在派發給 Service 層處理核心邏輯...');
-      
       // 3. 轉交大腦
       const result = await authService.register(email, password);
 
@@ -38,7 +27,7 @@ export const authController = {
       return res.status(201).json({
         status: 'success',
         message: '註冊成功！',
-        data: result 
+        data: result
       });
 
     } catch (error) {
@@ -63,9 +52,9 @@ export const authController = {
       });
     }
   },
-    /**
-   * 處理登入請求的門神函式
-   */
+  /**
+ * 處理登入請求的門神函式
+ */
   async login(req, res) {
     // 📡 探照燈 1：只要前端一發出請求，終端機立刻警報
     console.log('\n==================================================');
@@ -78,17 +67,6 @@ export const authController = {
     try {
       const { email, password } = req.body;
 
-      // 2. 基本防呆把關
-      if (!email || !password) {
-        console.warn('⚠️ [防呆攔截] 前端傳入資料不完整，拒絕於門口。');
-        return res.status(400).json({
-          status: 'error',
-          message: '請輸入完整的帳號與密碼。'
-        });
-      }
-
-      console.log('🧠 [轉交] 資料規格正確，正在派發給 Service 層處理核心邏輯...');
-      
       // 3. 轉交大腦
       const result = await authService.login(email, password);
 
@@ -99,7 +77,7 @@ export const authController = {
       return res.status(200).json({
         status: 'success',
         message: '登入成功！',
-        data: result 
+        data: result
       });
 
     } catch (error) {
@@ -131,5 +109,12 @@ export const authController = {
         message: '伺服器內部發生錯誤，請稍後再試。'
       });
     }
+  },
+  me(req, res) {
+    return res.status(200).json({
+      status: 'success',
+      message: '取得使用者資訊成功',
+      data: req.user
+    });
   }
 };

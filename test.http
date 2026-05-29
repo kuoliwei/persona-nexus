@@ -1,0 +1,40 @@
+# 【登入請求】
+# POST：新增/提交資料用的 HTTP 方法
+# Content-Type: application/json：告訴伺服器我傳的資料格式是 JSON
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "kuo@gmail.com",
+  "password": "123456"
+}
+
+### （分隔線，用來區隔多個請求）
+
+# 【取得目前登入使用者資訊】（受保護路由，需要 Token）
+# GET：取得資料用的 HTTP 方法，不需要帶 Body
+# Authorization: 認證用的 Header
+# Bearer：固定格式前綴，代表「持有者」，是業界標準規範
+# Bearer 後面接的那一長串就是登入後拿到的 JWT Token
+GET http://localhost:3000/api/v1/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzcl8xNzc5NjgzMTYzMTA3IiwiaWF0IjoxNzc5ODQ4MTI4LCJleHAiOjE3ODA0NTI5Mjh9.JC6fuhVxX0S-DZV0eHkVHrmF2k_OyPalNEU1s8EibEk
+
+###
+# 模擬使用錯誤格式註冊
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "liwei@gmail.com",
+  "password": "12345"
+}
+
+###
+# 模擬使用錯誤格式登入
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "liwei@gmail.com",
+  "password": "789456"
+}

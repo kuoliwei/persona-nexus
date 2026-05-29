@@ -1,5 +1,6 @@
-import { userRepository } from '../repositories/userRepository.js';
+import { userRepository } from '../repositories/userApiClient.js';
 import bcrypt from 'bcrypt';
+import { generateToken } from '../utils/jwtHelper.js'
 
 export const authService = {
   /**
@@ -11,7 +12,7 @@ export const authService = {
     try {
       // 1. 重複性檢查：叫倉管（Repository）去查這個 Email 有沒有被註冊過
       const existingUser = await userRepository.findByEmail(email);
-    
+
       if (existingUser) {
         // 找到了，代表 Email 被佔用了，大腦決定中止流程，並拋出一個錯誤
         throw new Error('EMAIL_ALREADY_EXISTS');
@@ -37,20 +38,20 @@ export const authService = {
     } catch (error) {
       // 核心邏輯：如果是我們自己主動丟出的「Email重複」，就放行，不攔截牠！
       if (error.message === 'EMAIL_ALREADY_EXISTS') {
-        throw error; 
+        throw error;
       }
-
+      console.error('真正的錯誤：', error);
       // 如果走到這，代表真的是倉庫存取失敗、硬碟爆掉等「真正的未知錯誤」
       // 在這裡我們可以先做點別的事，例如 console.error('倉庫爆了：', error);
       throw new Error('UNKNOWN_SERVER_ERROR');
     }
   },
-    /**
-    * 處理用戶登入的核心業務邏輯
-    * @param {string} email 
-    * @param {string} password 
-    */
-    async login(email, password) {
+  /**
+  * 處理用戶登入的核心業務邏輯
+  * @param {string} email 
+  * @param {string} password 
+  */
+  async login(email, password) {
     try {
       // 1. 重複性檢查：叫倉管（Repository）去查這個 Email 有沒有被註冊過
       const existingUser = await userRepository.findByEmail(email);
@@ -63,19 +64,21 @@ export const authService = {
       if (!isMatch) {
         throw new Error('EMAIL_OR_PASSWORD_NOTMATCH');
       }
+      const token = generateToken(existingUser.id);
       return {
         id: existingUser.id,
-        email: existingUser.email
+        email: existingUser.email,
+        token: token
       };
     } catch (error) {
       // 核心邏輯：如果是我們自己主動丟出的ERROR，就放行，不攔截牠！
       if (error.message === 'UNKNOWN_USER') {
-        throw error; 
+        throw error;
       }
       else if (error.message === 'EMAIL_OR_PASSWORD_NOTMATCH') {
-        throw error; 
+        throw error;
       }
-
+      console.error('真正的錯誤：', error);
       // 如果走到這，代表真的是倉庫存取失敗、硬碟爆掉等「真正的未知錯誤」
       // 在這裡我們可以先做點別的事，例如 console.error('倉庫爆了：', error);
       throw new Error('UNKNOWN_SERVER_ERROR');

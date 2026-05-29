@@ -1,7 +1,10 @@
 // 使用方式：node src/app.js
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors'; // 引入解鎖工具
 import { authController } from './controllers/authController.js';
+import { authMiddleware } from './middlewares/authMiddleware.js';
+import { validateMiddleware } from './middlewares/validateMiddleware.js';
 
 const app = express();
 const PORT = 3000;
@@ -14,10 +17,13 @@ app.use(cors({
 app.use(express.json());
 
 // 【註冊路由分發】將網址路徑、HTTP 方法與 Controller 綁定
-app.post('/api/v1/auth/register', authController.register);
+app.post('/api/v1/auth/register', validateMiddleware, authController.register);
 
 // 【登入路由分發】將網址路徑、HTTP 方法與 Controller 綁定
-app.post('/api/v1/auth/login', authController.login);
+app.post('/api/v1/auth/login', validateMiddleware, authController.login);
+
+// 【登入路由分發】將網址路徑、HTTP 方法與 Controller 綁定
+app.get('/api/v1/auth/me', authMiddleware, authController.me);
 
 // 啟動伺服器並監聽 3000 連接埠
 app.listen(PORT, () => {
